@@ -1,0 +1,42 @@
+{
+  "name": "graphql-google-pubsub",
+  "version": "1.0.0",
+  "description": "A graphql-subscriptions PubSub Engine using Google PubSub",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axelspringer/graphql-google-pubsub.git"
+  },
+  "keywords": [
+    "graphql",
+    "google",
+    "pubsub",
+    "apollo",
+    "subscriptions"
+  ],
+  "author": "Jonas Hackenberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axelspringer/graphql-google-pubsub/issues"
+  },
+  "homepage": "https://github.com/axelspringer/graphql-google-pubsub",
+  "contributors": [
+    {
+      "name": "Jonas Hackenberg",
+      "email": "jonas@arkulpa.at"
+    }
+  ],
+  "scripts": {
+    "dist": "babel src -d dist"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.16.4",
+    "iterall": "^1.2.2",
+    "graphql-subscriptions": "^0.5.8"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
+}
