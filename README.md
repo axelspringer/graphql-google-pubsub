@@ -1,4 +1,4 @@
-# graphql-google-pub-sub
+# graphql-google-pubsub
 
 This package implements the PubSubEngine Interface from the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package and also the new AsyncIterator interface. 
 It allows you to connect your subscriptions manger to a Google PubSub mechanism to support 
@@ -6,9 +6,9 @@ multiple subscription manager instances.
 
 ## Installation
 
-`npm install graphql-google-pub-sub` 
+`npm install @axelspringer/graphql-google-pubsub` 
 or
-`yarn add graphql-google-pub-sub`
+`yarn add @axelspringer/graphql-google-pubsub`
    
 ## Using as AsyncIterator
 
@@ -33,7 +33,7 @@ type Result {
 Now, let's create a simple `GooglePubSub` instance:
 
 ```javascript
-import { GooglePubSub } from 'graphql-google-pub-sub';
+import { GooglePubSub } from 'graphql-google-pubsub';
 const pubsub = new GooglePubSub();
 ```
 
