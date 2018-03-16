@@ -146,5 +146,5 @@ export const resolvers = {
 ## Acknowledgements
 
 This project is mostly inspired by [graphql-redis-subscriptions](https://github.com/davidyaha/graphql-redis-subscriptions).
-Many thanks to its authors for their work and inspiration.
+Many thanks to its authors for their work and inspiration. Thanks to the Lean Team (Daniel Vogel, Martin Thomas, Florian Tatzky, Sebastian Herrlinger and Tim Susa).
 
