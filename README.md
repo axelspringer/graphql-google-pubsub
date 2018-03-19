@@ -33,7 +33,7 @@ type Result {
 Now, let's create a simple `GooglePubSub` instance:
 
 ```javascript
-import { GooglePubSub } from 'graphql-google-pubsub';
+import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
 const pubsub = new GooglePubSub();
 ```
 
@@ -92,7 +92,7 @@ export const resolvers = {
 ## Creating the Google PubSub Client
 
 ```javascript
-import { GooglePubSub } from 'graphql-google-pubsub';
+import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
 
 const pubSub = new GooglePubSub(options, topic2SubName, commonMessageHandler)
 ```
@@ -146,5 +146,5 @@ export const resolvers = {
 ## Acknowledgements
 
 This project is mostly inspired by [graphql-redis-subscriptions](https://github.com/davidyaha/graphql-redis-subscriptions).
-Many thanks to its authors for their work and inspiration. Thanks to the Lean Team (Daniel Vogel, Martin Thomas, Florian Tatzky, Sebastian Herrlinger and [Tim Susa](https://github.com/TimSusa)).
+Many thanks to its authors for their work and inspiration. Thanks to the Lean Team ([Daniel Vogel](https://github.com/herr-vogel), [Martin Thomas](https://github.com/mthomas87), [Marcel Dohnal](https://github.com/mdohnal), [Florian Tatzky](https://github.com/pferdone), [Sebastian Herrlinger](https://github.com/kommander), [Mircea Craculeac](https://github.com/emzaeh) and [Tim Susa](https://github.com/TimSusa)).
 
