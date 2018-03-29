@@ -16,8 +16,11 @@ export default class GooglePubSub {
     this.commonMessageHandler = commonMessageHandler
   }
 
-  publish(topicName, payload) {
-    return this.pubSubClient.topic(topicName).publisher().publish(Buffer.from(JSON.stringify(payload)))
+  publish(topicName, data, attributes) {
+    if (typeof data !== 'string') {
+      data = JSON.stringify(data)
+    }
+    return this.pubSubClient.topic(topicName).publisher().publish(Buffer.from(data), attributes)
   }
 
   getSubscription(topicName, subName) {
