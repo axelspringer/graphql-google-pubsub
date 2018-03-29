@@ -1,6 +1,6 @@
 {
   "name": "@axelspringer/graphql-google-pubsub",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A graphql-subscriptions PubSub Engine using Google PubSub",
   "main": "dist/index.js",
   "repository": {
