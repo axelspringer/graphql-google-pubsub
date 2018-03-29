@@ -5,12 +5,13 @@ export default class GooglePubSub {
   constructor(
     config,
     topic2SubName = topicName => `${topicName}-subscription`,
-    commonMessageHandler = message => message
+    commonMessageHandler = message => message,
+    pubSubClient = new PubSub(config)
   ) {
     this.clientId2GoogleSubNameAndClientCallback = {}
     this.googleSubName2GoogleSubAndClientIds = {}
     this.currentClientId = 0
-    this.pubSubClient = new PubSub(config)
+    this.pubSubClient = pubSubClient
     this.topic2SubName = topic2SubName
     this.commonMessageHandler = commonMessageHandler
   }
