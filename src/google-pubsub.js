@@ -49,10 +49,11 @@ export default class GooglePubSub {
         const messageHandler = this.getMessageHandler(subName)
         sub.on('message', messageHandler)
         sub.on('error', error => console.error(error))
+        const {ids: oldIds = []} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
         this.googleSubName2GoogleSubAndClientIds[subName] = {
           messageHandler,
           sub,
-          ids: [...(this.googleSubName2GoogleSubAndClientIds[subName] || []), id]
+          ids: [...oldIds, id]
         }
         return id
       })
