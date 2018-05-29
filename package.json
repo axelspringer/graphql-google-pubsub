@@ -31,7 +31,7 @@
     "prepublishOnly": "npm run dist"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^0.16.4",
+    "@google-cloud/pubsub": "^0.18.0",
     "iterall": "^1.2.2",
     "graphql-subscriptions": "^0.5.8"
   },
