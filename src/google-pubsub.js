@@ -87,7 +87,7 @@ export default class GooglePubSub {
     } else {
       const index = ids.indexOf(subId)
       this.googleSubName2GoogleSubAndClientIds[subName] =
-        {sub, ids: index === -1 ? ids : [...ids.slice(0, index), ...ids.slice(index + 1)]}
+        {sub, ids: index === -1 ? ids : [...ids.slice(0, index), ...ids.slice(index + 1)], messageHandler}
     }
     delete this.clientId2GoogleSubNameAndClientCallback[subId]
   }
