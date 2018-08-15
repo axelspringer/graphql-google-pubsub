@@ -23,6 +23,7 @@ export default class AsyncIterator {
   }
 
   throw(error) {
+    console.log('throw', error)
     return this.allSubscribed.then(subs => {
       this.emptyQueue(subs)
       return Promise.reject(error)
@@ -51,7 +52,7 @@ export default class AsyncIterator {
       } else {
         this.pullQueue.push(resolve)
       }
-    })
+    }).catch(e => console.log('pullValue', e))
   }
 
   emptyQueue(subscriptionIds) {
@@ -67,7 +68,7 @@ export default class AsyncIterator {
   subscribeAll() {
     return Promise.all(this.eventsArray.map(
       eventName => this.pubsub.subscribe(eventName, this.pushValue.bind(this), this.options)
-    ))
+    )).catch(e => console.log('subscribeAll', e))
   }
 
   unsubscribeAll(subscriptionIds) {

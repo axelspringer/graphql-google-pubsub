@@ -1,6 +1,9 @@
 import PubSub from '@google-cloud/pubsub'
 import AsyncIterator from './async-iterator'
 
+const subName2Log = subName => `${subName}\t${subName === 'article-pod-jonas-subscription' ? '\t\t' : ''}`
+const ids2Log = ids => typeof ids !== 'undefined' ? JSON.stringify(ids) : '-'
+
 export default class GooglePubSub {
   constructor(
     config,
@@ -41,6 +44,7 @@ export default class GooglePubSub {
     this.clientId2GoogleSubNameAndClientCallback[id] = [subName, onMessage]
 
     const {ids, ...rest} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    console.log('-x-x-x-x-x-', 'sub\t\t', 'subName\t', subName2Log(subName), 'id\t', id + '\t', 'ids\t', ids2Log(ids) + '\t', 'existing\t', !!ids && ids.length > 0)
     if (ids && ids.length > 0) {
       this.googleSubName2GoogleSubAndClientIds[subName] = {...rest, ids: [...ids, id]}
       return Promise.resolve(id)
@@ -65,11 +69,12 @@ export default class GooglePubSub {
       message.ack()
       Promise.resolve(message).then(this.commonMessageHandler).then(res => {
         const {ids} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+        console.log('-x-x-x-x-x-', 'handleMessage\t', 'subName\t', subName2Log(subName), '\t', '\t', 'ids\t', ids2Log(ids) + '\t', 'type\t', message.data.toString())
         ids.forEach(id => {
           const [, onMessage] = this.clientId2GoogleSubNameAndClientCallback[id]
           onMessage(res)
         })
-      })
+      }).catch(e => console.log(e))
     }
     return handleMessage.bind(this)
   }
@@ -77,10 +82,12 @@ export default class GooglePubSub {
   unsubscribe(subId) {
     const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId]
     const {ids, sub, messageHandler} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    console.log('-x-x-x-x-x-', 'unsub\t\t', 'subName\t', subName2Log(subName), 'id\t', subId + '\t', 'ids\t', ids2Log(ids))
 
     if (!ids) throw new Error(`There is no subscription of id "${subId}"`)
 
     if (ids.length === 1) {
+      console.log('-x-x-x-x-x-', 'removeListener\t', 'subName\t', subName2Log(subName), 'id\t', subId + '\t', 'ids\t', ids2Log(ids))
       sub.removeListener('message', messageHandler)
       // sub.delete()
       delete this.googleSubName2GoogleSubAndClientIds[subName]
