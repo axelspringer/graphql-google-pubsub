@@ -46,24 +46,26 @@ export default class GooglePubSub {
     const id = this.currentClientId++
     this.clientId2GoogleSubNameAndClientCallback[id] = [subName, onMessage]
 
-    const {ids, ...rest} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
-    if (ids && ids.length > 0) {
-      this.googleSubName2GoogleSubAndClientIds[subName] = {...rest, ids: [...ids, id]}
-      return Promise.resolve(id)
-    } else {
-      return this.getSubscription(topicName, subName).then(sub => {
-        const messageHandler = this.getMessageHandler(subName)
-        sub.on('message', messageHandler)
-        sub.on('error', error => console.error(error))
-        const {ids: oldIds = []} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
-        this.googleSubName2GoogleSubAndClientIds[subName] = {
-          messageHandler,
-          sub,
-          ids: [...oldIds, id]
-        }
-        return id
-      })
-    }
+    const {ids: oldIds = [], ...rest} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    this.googleSubName2GoogleSubAndClientIds[subName] = {...rest, ids: [...oldIds, id]}
+    if (oldIds.length > 0) return Promise.resolve(id)
+    return this.getSubscription(topicName, subName).then(sub => {
+      const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+      // all clients have unsubscribed before the async subscription was created
+      if (!googleSubAndClientIds.ids.length) return id;
+      const messageHandler = this.getMessageHandler(subName)
+      const errorHandler = error => console.error(error)
+      sub.on('message', messageHandler)
+      sub.on('error', errorHandler)
+
+      this.googleSubName2GoogleSubAndClientIds[subName] = {
+        ...googleSubAndClientIds,
+        messageHandler,
+        errorHandler,
+        sub
+      }
+      return id
+    })
   }
 
   getMessageHandler(subName) {
@@ -83,18 +85,24 @@ export default class GooglePubSub {
   unsubscribe(subId) {
     const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId] || []
     if (!subName) throw new NoSubscriptionOfIdError(subId)
-    const {ids, sub, messageHandler} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    const {ids} = googleSubAndClientIds;
 
     if (!ids) throw new NoSubscriptionOfIdError(subId)
 
     if (ids.length === 1) {
-      sub.removeListener('message', messageHandler)
+      const {sub, messageHandler, errorHandler} = googleSubAndClientIds
+      // only remove listener if the client didn't unsubscribe before the subscription was created
+      if (sub) {
+        sub.removeListener('message', messageHandler)
+        sub.removeListener('error', errorHandler)
+      }
       // sub.delete()
       delete this.googleSubName2GoogleSubAndClientIds[subName]
     } else {
       const index = ids.indexOf(subId)
       this.googleSubName2GoogleSubAndClientIds[subName] =
-        {sub, ids: index === -1 ? ids : [...ids.slice(0, index), ...ids.slice(index + 1)], messageHandler}
+        {...googleSubAndClientIds, ids: index === -1 ? ids : [...ids.slice(0, index), ...ids.slice(index + 1)]}
     }
     delete this.clientId2GoogleSubNameAndClientCallback[subId]
   }
