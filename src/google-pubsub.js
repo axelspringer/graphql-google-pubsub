@@ -70,7 +70,7 @@ export default class GooglePubSub {
     function handleMessage (message) {
       message.ack()
       Promise.resolve(message).then(this.commonMessageHandler).then(res => {
-        const {ids} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+        const {ids = []} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
         ids.forEach(id => {
           const [, onMessage] = this.clientId2GoogleSubNameAndClientCallback[id]
           onMessage(res)
