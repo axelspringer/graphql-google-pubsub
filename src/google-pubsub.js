@@ -1,6 +1,12 @@
 import PubSub from '@google-cloud/pubsub'
 import AsyncIterator from './async-iterator'
 
+class NoSubscriptionOfIdError extends Error {
+  constructor(subId) {
+    super(`There is no subscription of id "${subId}"`)
+  }
+}
+
 export default class GooglePubSub {
   constructor(
     config,
@@ -75,10 +81,11 @@ export default class GooglePubSub {
   }
 
   unsubscribe(subId) {
-    const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId]
+    const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId] || []
+    if (!subName) throw new NoSubscriptionOfIdError(subId)
     const {ids, sub, messageHandler} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
 
-    if (!ids) throw new Error(`There is no subscription of id "${subId}"`)
+    if (!ids) throw new NoSubscriptionOfIdError(subId)
 
     if (ids.length === 1) {
       sub.removeListener('message', messageHandler)
