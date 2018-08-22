@@ -286,10 +286,6 @@ describe('GooglePubSub', () => {
 
   });*/
 
-  after('Restore Google PubSub client mock', () => {
-    // restore();
-  });
-
 });
 
 describe('PubSubAsyncIterator', () => {
