@@ -175,23 +175,24 @@ describe('GooglePubSub', () => {
     });
   });
 
-  /*it('can have multiple subscribers and all will be called when a message is published to this channel', done => {
+  it('can have multiple subscribers and all will be called when a message is published to this topic', done => {
     const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
     const onMessageSpy = spy(() => null);
     const subscriptionPromises = [
-      pubSub.subscribe('Posts', onMessageSpy as Function),
-      pubSub.subscribe('Posts', onMessageSpy as Function),
+      pubSub.subscribe('Posts', onMessageSpy), // as function
+      pubSub.subscribe('Posts', onMessageSpy),
     ];
 
-    Promise.all(subscriptionPromises).then(subIds => {
+    Promise.all(subscriptionPromises).then(async subIds => {
       try {
         expect(subIds.length).to.equals(2);
 
         pubSub.publish('Posts', 'test');
 
+        await asyncMessageHandler();
         expect(onMessageSpy.callCount).to.equals(2);
         onMessageSpy.calls.forEach(call => {
-          expect(call.args).to.have.members(['test']);
+          expect(call.args[0].data.toString()).to.equals('test');
         });
 
         pubSub.unsubscribe(subIds[0]);
@@ -201,7 +202,7 @@ describe('GooglePubSub', () => {
         done(e);
       }
     });
-  });*/
+  });
 
   /*it('can publish objects as well', done => {
     const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
