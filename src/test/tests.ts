@@ -204,24 +204,25 @@ describe('GooglePubSub', () => {
     });
   });
 
-  /*it('can publish objects as well', done => {
-    const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
+  it('can publish objects as well', done => {
+    const {pubSub} = getMockedGooglePubSub();
     pubSub.subscribe('Posts', message => {
       try {
-        expect(message).to.have.property('comment', 'This is amazing');
+        expect(JSON.parse(message.data.toString())).to.have.property('comment', 'This is amazing');
         done();
       } catch (e) {
         done(e);
       }
-    }).then(subId => {
+    }).then(async subId => {
       try {
         pubSub.publish('Posts', { comment: 'This is amazing' });
+        await asyncMessageHandler();
         pubSub.unsubscribe(subId);
       } catch (e) {
         done(e);
       }
     });
-  });*/
+  });
 
   /*it('can accept custom reviver option (eg. for Javascript Dates)', done => {
     const dateReviver = (key, value) => {
