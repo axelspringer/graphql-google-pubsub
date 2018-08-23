@@ -1,3 +1,4 @@
+import {$$asyncIterator} from 'iterall'
 import PubSub from '@google-cloud/pubsub'
 import AsyncIterator from './async-iterator'
 
@@ -110,4 +111,11 @@ export default class GooglePubSub {
   asyncIterator(triggers, options) {
     return new AsyncIterator(this, triggers, options)
   }
+
+  asyncIterable(triggers, options) {
+    return {
+      [$$asyncIterator]: () => new AsyncIterator(this, triggers, options)
+    };
+  }
+
 }
