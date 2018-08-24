@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 // -------------- Mocking Google PubSub Client ------------------
 
-function getMockedGooglePubSub () {
+function getMockedGooglePubSub ({topic2SubName = undefined, commonMessageHandler = undefined} = {}) {
   let listener;
 
   const ackSpy = spy(() => {});
@@ -46,7 +46,7 @@ function getMockedGooglePubSub () {
       subscription: spy(subName => subscriptionMock)
   };
 
-  const pubSub = new GooglePubSub(undefined, undefined, undefined, mockGooglePubSubClient)
+  const pubSub = new GooglePubSub(undefined, topic2SubName, commonMessageHandler, mockGooglePubSubClient);
 
   return {pubSub, addListenerSpy, removeListenerSpy};
 }
@@ -224,6 +224,7 @@ describe('GooglePubSub', () => {
     });
   });
 
+  // Todo: exchange with common message handler
   /*it('can accept custom reviver option (eg. for Javascript Dates)', done => {
     const dateReviver = (key, value) => {
       const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
@@ -259,38 +260,38 @@ describe('GooglePubSub', () => {
   });*/
 
   it('throws if you try to unsubscribe with an unknown id', () => {
-    const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
+    const {pubSub} = getMockedGooglePubSub();
     return expect(() => pubSub.unsubscribe(123))
       .to.throw('There is no subscription of id "123"');
   });
 
-  /*it('can use transform function to convert the trigger name given into more explicit channel name', done => {
-    const triggerTransform = (trigger, { repoName }) => `${trigger}.${repoName}`;
-    const pubSub = new GooglePubSub({
-      triggerTransform,
-    });
+  it('can use a transform function to convert the topic name given into more explicit subscription name', done => {
+    const topic2SubName = (topicName, {subscriptionSufix}) => `${topicName}-${subscriptionSufix}`;
+    const {pubSub} = getMockedGooglePubSub({topic2SubName});
 
     const validateMessage = message => {
       try {
-        expect(message).to.equals('test');
+        expect(message.data.toString()).to.equals('test');
         done();
       } catch (e) {
         done(e);
       }
     };
 
-    pubSub.subscribe('comments', validateMessage, { repoName: 'graphql-google-pubsub-subscriptions' }).then(subId => {
-      pubSub.publish('comments.graphql-google-pubsub-subscriptions', 'test');
-      pubSub.unsubscribe(subId);
-    });
+    pubSub.subscribe('comments', validateMessage, { subscriptionSufix: 'graphql-google-pubsub-subscription' })
+      .then(async subId => {
+        pubSub.publish('comments', 'test');
+        await asyncMessageHandler();
+        pubSub.unsubscribe(subId);
+      });
 
-  });*/
+  });
 
 });
 
 describe('PubSubAsyncIterator', () => {
 
-  it('should expose valid asyncItrator for a specific event', () => {
+  it('should expose valid asyncIterator for a specific event', () => {
     const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
