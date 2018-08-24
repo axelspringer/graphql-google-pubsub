@@ -53,6 +53,8 @@ function getMockedGooglePubSub ({topic2SubName = undefined, commonMessageHandler
 
 // wait for the promise of the message handler
 const asyncMessageHandler = () => new Promise(resolve => setTimeout(resolve, 0));
+// wait for the promise of the subscribe --> wait for the listener
+const asyncSubscribe = asyncMessageHandler;
 
 // -------------- Mocking Google PubSub Client ------------------
 
@@ -295,9 +297,7 @@ describe('PubSubAsyncIterator', () => {
     const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
-    // tslint:disable-next-line:no-unused-expression
     expect(iterator).to.exist;
-    // tslint:disable-next-line:no-unused-expression
     expect(isAsyncIterable(iterator)).to.be.true;
   });
 
@@ -307,18 +307,15 @@ describe('PubSubAsyncIterator', () => {
     const iterator = pubSub.asyncIterator(eventName);
 
     iterator.next().then(result => {
-      // tslint:disable-next-line:no-unused-expression
       expect(result).to.exist;
-      // tslint:disable-next-line:no-unused-expression
       expect(result.value).to.exist;
-      // tslint:disable-next-line:no-unused-expression
       expect(result.done).to.exist;
       done();
     });
     // Todo: check if the needed timeout here could be an issue
     // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
     // the subscriber needs some time to subscribe
-    setTimeout(() => pubSub.publish(eventName, { test: true }), 0)
+      asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }))
   });
 
   it('should not trigger event on asyncIterator when publishing other event', () => {
@@ -346,38 +343,31 @@ describe('PubSubAsyncIterator', () => {
     // Todo: check if the needed timeout here could be an issue
     // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
     // the subscriber needs some time to subscribe
-    setTimeout(() => pubSub.publish(eventName, { test: true }), 0)
+    asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }))
   });
 
-  /*it('should not trigger event on asyncIterator already returned', done => {
+  it('should not trigger event on asyncIterator already returned', done => {
     const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test';
-    const iterator = pubSub.asyncIterator<any>(eventName);
+    const iterator = pubSub.asyncIterator(eventName);
 
     iterator.next().then(result => {
-      // tslint:disable-next-line:no-unused-expression
       expect(result).to.exist;
-      // tslint:disable-next-line:no-unused-expression
       expect(result.value).to.exist;
-      expect(result.value.test).to.equal('word');
-      // tslint:disable-next-line:no-unused-expression
+      expect(JSON.parse(result.value.data.toString()).test).to.equal('word');
       expect(result.done).to.be.false;
-    });
-
-    pubSub.publish(eventName, { test: 'word' });
-
-    iterator.next().then(result => {
-      // tslint:disable-next-line:no-unused-expression
+    }).then(() => iterator.next().then(result => {
       expect(result).to.exist;
-      // tslint:disable-next-line:no-unused-expression
       expect(result.value).not.to.exist;
-      // tslint:disable-next-line:no-unused-expression
       expect(result.done).to.be.true;
       done();
-    });
+    }));
 
-    iterator.return();
-    pubSub.publish(eventName, { test: true });
-  });*/
+    asyncSubscribe()
+      .then(() => pubSub.publish(eventName, { test: 'word' }))
+      .then(asyncMessageHandler)
+      .then(() => iterator.return())
+      .then(() => pubSub.publish(eventName, { test: true }))
+  });
 
 });
