@@ -301,8 +301,8 @@ describe('PubSubAsyncIterator', () => {
     expect(isAsyncIterable(iterator)).to.be.true;
   });
 
-  /*it('should trigger event on asyncIterator when published', done => {
-    const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
+  it('should trigger event on asyncIterator when published', done => {
+    const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
 
@@ -315,9 +315,8 @@ describe('PubSubAsyncIterator', () => {
       expect(result.done).to.exist;
       done();
     });
-
-    pubSub.publish(eventName, { test: true });
-  });*/
+    setTimeout(() => pubSub.publish(eventName, { test: true }), 0)
+  });
 
   it('should not trigger event on asyncIterator when publishing other event', () => {
     const {pubSub} = getMockedGooglePubSub();
