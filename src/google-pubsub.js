@@ -1,5 +1,5 @@
 import PubSub from '@google-cloud/pubsub'
-import AsyncIterator from './async-iterator'
+import { PubSubAsyncIterator } from './async-iterator'
 
 class NoSubscriptionOfIdError extends Error {
   constructor(subId) {
@@ -108,6 +108,6 @@ export default class GooglePubSub {
   }
 
   asyncIterator(triggers, options) {
-    return new AsyncIterator(this, triggers, options)
+    return new PubSubAsyncIterator(this, triggers, options)
   }
 }
