@@ -10,7 +10,7 @@ import {
 import { isAsyncIterable } from 'iterall';
 import { subscribe } from 'graphql/subscription';
 
-import { GooglePubSub } from './../index'
+import GooglePubSub from '../index'
 import { withFilter } from 'graphql-subscriptions';
 
 chai.use(chaiAsPromised);

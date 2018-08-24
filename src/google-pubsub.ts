@@ -10,7 +10,7 @@ class NoSubscriptionOfIdError extends Error {
 
 export default class GooglePubSub implements PubSubEngine {
   constructor(
-    config,
+    config?,
     topic2SubName = topicName => `${topicName}-subscription`,
     commonMessageHandler = message => message,
     pubSubClient = new PubSub(config)
@@ -26,7 +26,7 @@ export default class GooglePubSub implements PubSubEngine {
   // Todo: how to handle attributes
   // Todo: wait for release of https://github.com/apollographql/graphql-subscriptions/issues/160#issuecomment-415796182
   // @ts-ignore
-  public publish(topicName: string, data: any, attributes: object) {
+  public publish(topicName: string, data: any, attributes?: object) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data)
     }
@@ -44,7 +44,7 @@ export default class GooglePubSub implements PubSubEngine {
     }
   }
 
-  public async subscribe(topicName, onMessage, options) {
+  public async subscribe(topicName, onMessage, options?) {
     const subName = this.topic2SubName(topicName, options)
     const id = this.currentClientId++
     this.clientId2GoogleSubNameAndClientCallback[id] = [subName, onMessage]
@@ -111,7 +111,7 @@ export default class GooglePubSub implements PubSubEngine {
 
   // Todo: how to handle options
   // @ts-ignore
-  public asyncIterator<T>(topics: string | string[], options) {
+  public asyncIterator<T>(topics: string | string[], options?) {
     // @ts-ignore
     return new PubSubAsyncIterator(this, topics, options)
   }
