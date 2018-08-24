@@ -226,7 +226,7 @@ describe('GooglePubSub', () => {
     });
   });
 
-  it.only('can use custom message handler', done => {
+  it('can use custom message handler', done => {
     const dateReviver = (key, value) => {
       const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
       if (typeof value === 'string' && isISO8601Z.test(value)) {
