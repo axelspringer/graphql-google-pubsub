@@ -33,19 +33,18 @@ export default class GooglePubSub implements PubSubEngine {
     return this.pubSubClient.topic(topicName).publisher().publish(Buffer.from(data), attributes)
   }
 
-  private getSubscription(topicName, subName) {
+  private async getSubscription(topicName, subName) {
     const sub = this.pubSubClient.subscription(subName)
-    return sub.exists().then(res => res[0]).then(exists => {
-      if (exists) {
-        return sub
-      } else {
-        return this.pubSubClient.topic(topicName).createSubscription(subName)
-          .then(results => results[0])
-      }
-    })
+    const [exists] = await sub.exists()
+    if (exists) {
+      return sub
+    } else {
+      const [newSub] = await this.pubSubClient.topic(topicName).createSubscription(subName)
+      return newSub
+    }
   }
 
-  public subscribe(topicName, onMessage, options) {
+  public async subscribe(topicName, onMessage, options) {
     const subName = this.topic2SubName(topicName, options)
     const id = this.currentClientId++
     this.clientId2GoogleSubNameAndClientCallback[id] = [subName, onMessage]
@@ -53,34 +52,33 @@ export default class GooglePubSub implements PubSubEngine {
     const {ids: oldIds = [], ...rest} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
     this.googleSubName2GoogleSubAndClientIds[subName] = {...rest, ids: [...oldIds, id]}
     if (oldIds.length > 0) return Promise.resolve(id)
-    return this.getSubscription(topicName, subName).then(sub => {
-      const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {}
-      // all clients have unsubscribed before the async subscription was created
-      if (!googleSubAndClientIds.ids.length) return id;
-      const messageHandler = this.getMessageHandler(subName)
-      const errorHandler = error => console.error(error)
-      sub.on('message', messageHandler)
-      sub.on('error', errorHandler)
+    const sub = await this.getSubscription(topicName, subName)
+    const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {}
+    // all clients have unsubscribed before the async subscription was created
+    if (!googleSubAndClientIds.ids.length) return id;
+    const messageHandler = this.getMessageHandler(subName)
+    const errorHandler = error => console.error(error)
+    sub.on('message', messageHandler)
+    sub.on('error', errorHandler)
 
-      this.googleSubName2GoogleSubAndClientIds[subName] = {
-        ...googleSubAndClientIds,
-        messageHandler,
-        errorHandler,
-        sub
-      }
-      return id
-    })
+    this.googleSubName2GoogleSubAndClientIds[subName] = {
+      ...googleSubAndClientIds,
+      messageHandler,
+      errorHandler,
+      sub
+    }
+    return id
   }
 
   private getMessageHandler(subName) {
-    function handleMessage (message) {
+    const engine = this;
+    async function handleMessage (message) {
       message.ack()
-      Promise.resolve(message).then(this.commonMessageHandler).then(res => {
-        const {ids = []} = this.googleSubName2GoogleSubAndClientIds[subName] || {}
-        ids.forEach(id => {
-          const [, onMessage] = this.clientId2GoogleSubNameAndClientCallback[id]
+      const res = await engine.commonMessageHandler(message)
+      const {ids = []} = engine.googleSubName2GoogleSubAndClientIds[subName] || {}
+      ids.forEach(id => {
+          const [, onMessage] = engine.clientId2GoogleSubNameAndClientCallback[id]
           onMessage(res)
-        })
       })
     }
     return handleMessage.bind(this)
