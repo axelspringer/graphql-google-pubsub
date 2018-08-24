@@ -315,6 +315,9 @@ describe('PubSubAsyncIterator', () => {
       expect(result.done).to.exist;
       done();
     });
+    // Todo: check if the needed timeout here could be an issue
+    // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
+    // the subscriber needs some time to subscribe
     setTimeout(() => pubSub.publish(eventName, { test: true }), 0)
   });
 
@@ -329,8 +332,8 @@ describe('PubSubAsyncIterator', () => {
     expect(triggerSpy.callCount).to.equal(0);
   });
 
-  /*it('register to multiple events', done => {
-    const pubSub = getMockedGooglePubSub();
+  it('register to multiple events', done => {
+    const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test2';
     const iterator = pubSub.asyncIterator(['test', 'test2']);
     const triggerSpy = spy(() => undefined);
@@ -340,11 +343,14 @@ describe('PubSubAsyncIterator', () => {
       expect(triggerSpy.callCount).to.be.gte(1);
       done();
     });
-    pubSub.publish(eventName, { test: true });
-  });*/
+    // Todo: check if the needed timeout here could be an issue
+    // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
+    // the subscriber needs some time to subscribe
+    setTimeout(() => pubSub.publish(eventName, { test: true }), 0)
+  });
 
   /*it('should not trigger event on asyncIterator already returned', done => {
-    const pubSub = getMockedGooglePubSub();
+    const {pubSub} = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator<any>(eventName);
 
