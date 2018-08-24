@@ -226,8 +226,7 @@ describe('GooglePubSub', () => {
     });
   });
 
-  // Todo: exchange with common message handler
-  /*it('can accept custom reviver option (eg. for Javascript Dates)', done => {
+  it.only('can use custom message handler', done => {
     const dateReviver = (key, value) => {
       const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
       if (typeof value === 'string' && isISO8601Z.test(value)) {
@@ -239,7 +238,17 @@ describe('GooglePubSub', () => {
       return value;
     };
 
-    const {pubSub, addListenerSpy, removeListenerSpy} = new GooglePubSub({...mockOptions, reviver: dateReviver});
+    function commonMessageHandler(message) {
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message.data.toString(), dateReviver);
+        } catch (e) {
+            parsedMessage = message;
+        }
+        return parsedMessage;
+    }
+
+    const {pubSub} = getMockedGooglePubSub({commonMessageHandler});
     const validTime = new Date();
     const invalidTime = '2018-13-01T12:00:00Z';
     pubSub.subscribe('Times', message => {
@@ -254,12 +263,12 @@ describe('GooglePubSub', () => {
     }).then(subId => {
       try {
         pubSub.publish('Times', { validTime, invalidTime });
-        pubSub.unsubscribe(subId);
+        asyncMessageHandler().then(() => pubSub.unsubscribe(subId));
       } catch (e) {
         done(e);
       }
     });
-  });*/
+  });
 
   it('throws if you try to unsubscribe with an unknown id', () => {
     const {pubSub} = getMockedGooglePubSub();
