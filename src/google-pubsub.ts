@@ -1,4 +1,5 @@
 import PubSub from '@google-cloud/pubsub'
+import { PubSubEngine } from 'graphql-subscriptions';
 import { PubSubAsyncIterator } from './async-iterator'
 
 class NoSubscriptionOfIdError extends Error {
@@ -7,7 +8,7 @@ class NoSubscriptionOfIdError extends Error {
   }
 }
 
-export default class GooglePubSub {
+export default class GooglePubSub implements PubSubEngine {
   constructor(
     config,
     topic2SubName = topicName => `${topicName}-subscription`,
@@ -22,14 +23,17 @@ export default class GooglePubSub {
     this.commonMessageHandler = commonMessageHandler
   }
 
-  publish(topicName, data, attributes) {
+  // Todo: how to handle attributes
+  // Todo: wait for release of https://github.com/apollographql/graphql-subscriptions/issues/160#issuecomment-415796182
+  // @ts-ignore
+  public publish(topicName: string, data: any, attributes: object) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data)
     }
     return this.pubSubClient.topic(topicName).publisher().publish(Buffer.from(data), attributes)
   }
 
-  getSubscription(topicName, subName) {
+  private getSubscription(topicName, subName) {
     const sub = this.pubSubClient.subscription(subName)
     return sub.exists().then(res => res[0]).then(exists => {
       if (exists) {
@@ -41,7 +45,7 @@ export default class GooglePubSub {
     })
   }
 
-  subscribe(topicName, onMessage, options) {
+  public subscribe(topicName, onMessage, options) {
     const subName = this.topic2SubName(topicName, options)
     const id = this.currentClientId++
     this.clientId2GoogleSubNameAndClientCallback[id] = [subName, onMessage]
@@ -68,7 +72,7 @@ export default class GooglePubSub {
     })
   }
 
-  getMessageHandler(subName) {
+  private getMessageHandler(subName) {
     function handleMessage (message) {
       message.ack()
       Promise.resolve(message).then(this.commonMessageHandler).then(res => {
@@ -82,8 +86,8 @@ export default class GooglePubSub {
     return handleMessage.bind(this)
   }
 
-  unsubscribe(subId) {
-    const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId] || []
+  public unsubscribe(subId) {
+    const [subName] = this.clientId2GoogleSubNameAndClientCallback[subId] || [undefined]
     if (!subName) throw new NoSubscriptionOfIdError(subId)
     const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {}
     const {ids} = googleSubAndClientIds;
@@ -107,7 +111,31 @@ export default class GooglePubSub {
     delete this.clientId2GoogleSubNameAndClientCallback[subId]
   }
 
-  asyncIterator(triggers, options) {
-    return new PubSubAsyncIterator(this, triggers, options)
+  // Todo: how to handle options
+  // @ts-ignore
+  public asyncIterator<T>(topics: string | string[], options) {
+    // @ts-ignore
+    return new PubSubAsyncIterator(this, topics, options)
   }
+
+  private commonMessageHandler: CommonMessageHandler;
+  private topic2SubName: Topic2SubName;
+  private pubSubClient: any; // Todo: type
+
+  private clientId2GoogleSubNameAndClientCallback: { [clientId: number]: [string, Function] }; // [subName: string, onMessage: Function]
+  private googleSubName2GoogleSubAndClientIds: { [topic: string]: GoogleSubAndClientIds }; //
+  private currentClientId: number;
 }
+
+type GoogleSubAndClientIds = {
+  sub?: any, // Todo: type
+  messageHandler?: Function,
+  errorHandler?: Function,
+  ids?: Array<number>
+}
+export type Topic = string
+export type Topic2SubName = (
+    topic: Topic,
+    subscriptionOptions?: Object,
+) => string;
+export type CommonMessageHandler = (message: any) => any; // Todo: maybe type message
