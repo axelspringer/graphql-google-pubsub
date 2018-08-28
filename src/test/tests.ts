@@ -12,15 +12,11 @@ const expect = chai.expect;
 function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler = undefined } = {}) {
   let listener;
 
+  // tslint:disable-next-line:no-empty
   const ackSpy = spy(() => {});
 
   const publisherMock = {
     publish: spy((data, attributes) => listener && listener({ ack: ackSpy, data, attributes }))
-  };
-
-  const topicMock = {
-    publisher: spy(() => publisherMock),
-    createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
   };
 
   const removeListenerSpy = spy((event, cb) => {
@@ -39,6 +35,11 @@ function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler
     exists: spy(subName => Promise.resolve(true)),
     on: addListenerSpy,
     removeListener: removeListenerSpy
+  };
+
+  const topicMock = {
+    publisher: spy(() => publisherMock),
+    createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
   };
 
   const mockGooglePubSubClient = {
@@ -300,7 +301,9 @@ describe('PubSubAsyncIterator', () => {
     const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
+    // tslint:disable-next-line:no-unused-expression
     expect(iterator).to.exist;
+    // tslint:disable-next-line:no-unused-expression
     expect(isAsyncIterable(iterator)).to.be.true;
   });
 
@@ -310,8 +313,11 @@ describe('PubSubAsyncIterator', () => {
     const iterator = pubSub.asyncIterator(eventName);
 
     iterator.next().then(result => {
+      // tslint:disable-next-line:no-unused-expression
       expect(result).to.exist;
+      // tslint:disable-next-line:no-unused-expression
       expect(result.value).to.exist;
+      // tslint:disable-next-line:no-unused-expression
       expect(result.done).to.exist;
       done();
     });
@@ -357,15 +363,21 @@ describe('PubSubAsyncIterator', () => {
     iterator
       .next()
       .then(result => {
+        // tslint:disable-next-line:no-unused-expression
         expect(result).to.exist;
+        // tslint:disable-next-line:no-unused-expression
         expect(result.value).to.exist;
         expect(JSON.parse(result.value.data.toString()).test).to.equal('word');
+        // tslint:disable-next-line:no-unused-expression
         expect(result.done).to.be.false;
       })
       .then(() =>
         iterator.next().then(result => {
+          // tslint:disable-next-line:no-unused-expression
           expect(result).to.exist;
+          // tslint:disable-next-line:no-unused-expression
           expect(result.value).not.to.exist;
+          // tslint:disable-next-line:no-unused-expression
           expect(result.done).to.be.true;
           done();
         })
