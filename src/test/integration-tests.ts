@@ -1,12 +1,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { mock } from 'simple-mock';
-import {
-  parse,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-} from 'graphql';
+import { parse, GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { isAsyncIterable } from 'iterall';
 import { subscribe } from 'graphql/subscription';
 
@@ -27,9 +22,9 @@ function buildSchema(iterator) {
           type: GraphQLString,
           resolve: function(_, args) {
             return 'works';
-          },
-        },
-      },
+          }
+        }
+      }
     }),
     subscription: new GraphQLObjectType({
       name: 'Subscription',
@@ -39,10 +34,10 @@ function buildSchema(iterator) {
           subscribe: withFilter(() => iterator, () => true),
           resolve: root => {
             return 'FIRST_EVENT';
-          },
-        },
-      },
-    }),
+          }
+        }
+      }
+    })
   });
 }
 

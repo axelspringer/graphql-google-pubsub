@@ -9,46 +9,46 @@ const expect = chai.expect;
 
 // -------------- Mocking Google PubSub Client ------------------
 
-function getMockedGooglePubSub ({topic2SubName = undefined, commonMessageHandler = undefined} = {}) {
+function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler = undefined } = {}) {
   let listener;
 
   const ackSpy = spy(() => {});
 
   const publisherMock = {
-      publish: spy((data, attributes) => listener && listener({ack: ackSpy,data, attributes}))
+    publish: spy((data, attributes) => listener && listener({ ack: ackSpy, data, attributes }))
   };
 
   const topicMock = {
-      publisher: spy(() => publisherMock),
-      createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
+    publisher: spy(() => publisherMock),
+    createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
   };
 
   const removeListenerSpy = spy((event, cb) => {
-      if (event === 'message') {
-          listener = null;
-      }
+    if (event === 'message') {
+      listener = null;
+    }
   });
 
   const addListenerSpy = spy((event, cb) => {
-      if (event === 'message') {
-          listener = cb;
-      }
+    if (event === 'message') {
+      listener = cb;
+    }
   });
 
   const subscriptionMock = {
-      exists: spy(subName => Promise.resolve(true)),
-      on: addListenerSpy,
-      removeListener: removeListenerSpy,
+    exists: spy(subName => Promise.resolve(true)),
+    on: addListenerSpy,
+    removeListener: removeListenerSpy
   };
 
   const mockGooglePubSubClient = {
-      topic: spy(topic => topicMock),
-      subscription: spy(subName => subscriptionMock)
+    topic: spy(topic => topicMock),
+    subscription: spy(subName => subscriptionMock)
   };
 
   const pubSub = new GooglePubSub(undefined, topic2SubName, commonMessageHandler, mockGooglePubSubClient);
 
-  return {pubSub, addListenerSpy, removeListenerSpy};
+  return { pubSub, addListenerSpy, removeListenerSpy };
 }
 
 // wait for the promise of the message handler
@@ -59,27 +59,27 @@ const asyncSubscribe = asyncMessageHandler;
 // -------------- Mocking Google PubSub Client ------------------
 
 describe('GooglePubSub', () => {
-
   it('can subscribe to specific topic and called when a message is published on it', done => {
-    const {pubSub} = getMockedGooglePubSub();
-    pubSub.subscribe('Posts', message => {
-      try {
-        expect(message.data.toString()).to.equals('test');
-        done();
-      } catch (e) {
-        done(e);
-      }
-
-    }).then(async subId => {
-      expect(subId).to.be.a('number');
-      pubSub.publish('Posts', 'test');
-      await asyncMessageHandler();
-      pubSub.unsubscribe(subId)
-    });
+    const { pubSub } = getMockedGooglePubSub();
+    pubSub
+      .subscribe('Posts', message => {
+        try {
+          expect(message.data.toString()).to.equals('test');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      })
+      .then(async subId => {
+        expect(subId).to.be.a('number');
+        pubSub.publish('Posts', 'test');
+        await asyncMessageHandler();
+        pubSub.unsubscribe(subId);
+      });
   });
 
   it('can unsubscribe from specific topic', done => {
-    const {pubSub, removeListenerSpy} = getMockedGooglePubSub();
+    const { pubSub, removeListenerSpy } = getMockedGooglePubSub();
     pubSub.subscribe('Posts', () => null).then(subId => {
       pubSub.unsubscribe(subId);
 
@@ -88,7 +88,6 @@ describe('GooglePubSub', () => {
         expect(removeListenerSpy.calls[0].args[0]).to.equals('message');
         expect(removeListenerSpy.calls[1].args[0]).to.equals('error');
         done();
-
       } catch (e) {
         done(e);
       }
@@ -96,12 +95,9 @@ describe('GooglePubSub', () => {
   });
 
   it('cleans up correctly the memory when unsubscribing', done => {
-    const {pubSub} = getMockedGooglePubSub();
-    Promise.all([
-      pubSub.subscribe('Posts', () => null),
-      pubSub.subscribe('Posts', () => null),
-    ])
-      .then(([subId, secondSubId]) => {
+    const { pubSub } = getMockedGooglePubSub();
+    Promise.all([pubSub.subscribe('Posts', () => null), pubSub.subscribe('Posts', () => null)]).then(
+      ([subId, secondSubId]) => {
         try {
           // This assertion is done against a private member, if you change the internals, you may want to change that
           expect((pubSub as any).clientId2GoogleSubNameAndClientCallback[subId]).not.to.be.an('undefined');
@@ -111,27 +107,27 @@ describe('GooglePubSub', () => {
           expect(() => pubSub.unsubscribe(subId)).to.throw(`There is no subscription of id "${subId}"`);
           pubSub.unsubscribe(secondSubId);
           done();
-
         } catch (e) {
           done(e);
         }
-      });
+      }
+    );
   });
 
-  it('will not unsubscribe from the topic if there is another subscriber on it\'s subscriber list', done => {
-    const {pubSub, removeListenerSpy} = getMockedGooglePubSub();
+  it("will not unsubscribe from the topic if there is another subscriber on it's subscriber list", done => {
+    const { pubSub, removeListenerSpy } = getMockedGooglePubSub();
     const subscriptionPromises = [
       pubSub.subscribe('Posts', () => {
         done('Not supposed to be triggered');
       }),
-      pubSub.subscribe('Posts', (message) => {
+      pubSub.subscribe('Posts', message => {
         try {
           expect(message.data.toString()).to.equals('test');
           done();
         } catch (e) {
           done(e);
         }
-      }),
+      })
     ];
 
     Promise.all(subscriptionPromises).then(async subIds => {
@@ -154,12 +150,9 @@ describe('GooglePubSub', () => {
   });
 
   it('will subscribe to topic only once', done => {
-    const {pubSub, addListenerSpy} = getMockedGooglePubSub();
+    const { pubSub, addListenerSpy } = getMockedGooglePubSub();
     const onMessage = () => null;
-    const subscriptionPromises = [
-      pubSub.subscribe('Posts', onMessage),
-      pubSub.subscribe('Posts', onMessage),
-    ];
+    const subscriptionPromises = [pubSub.subscribe('Posts', onMessage), pubSub.subscribe('Posts', onMessage)];
 
     Promise.all(subscriptionPromises).then(subIds => {
       try {
@@ -178,11 +171,11 @@ describe('GooglePubSub', () => {
   });
 
   it('can have multiple subscribers and all will be called when a message is published to this topic', done => {
-    const {pubSub, addListenerSpy, removeListenerSpy} = getMockedGooglePubSub();
+    const { pubSub, addListenerSpy, removeListenerSpy } = getMockedGooglePubSub();
     const onMessageSpy = spy(() => null);
     const subscriptionPromises = [
       pubSub.subscribe('Posts', onMessageSpy), // as function
-      pubSub.subscribe('Posts', onMessageSpy),
+      pubSub.subscribe('Posts', onMessageSpy)
     ];
 
     Promise.all(subscriptionPromises).then(async subIds => {
@@ -207,23 +200,25 @@ describe('GooglePubSub', () => {
   });
 
   it('can publish objects as well', done => {
-    const {pubSub} = getMockedGooglePubSub();
-    pubSub.subscribe('Posts', message => {
-      try {
-        expect(JSON.parse(message.data.toString())).to.have.property('comment', 'This is amazing');
-        done();
-      } catch (e) {
-        done(e);
-      }
-    }).then(async subId => {
-      try {
-        pubSub.publish('Posts', { comment: 'This is amazing' });
-        await asyncMessageHandler();
-        pubSub.unsubscribe(subId);
-      } catch (e) {
-        done(e);
-      }
-    });
+    const { pubSub } = getMockedGooglePubSub();
+    pubSub
+      .subscribe('Posts', message => {
+        try {
+          expect(JSON.parse(message.data.toString())).to.have.property('comment', 'This is amazing');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      })
+      .then(async subId => {
+        try {
+          pubSub.publish('Posts', { comment: 'This is amazing' });
+          await asyncMessageHandler();
+          pubSub.unsubscribe(subId);
+        } catch (e) {
+          done(e);
+        }
+      });
   });
 
   it('can use custom message handler', done => {
@@ -239,46 +234,47 @@ describe('GooglePubSub', () => {
     };
 
     function commonMessageHandler(message) {
-        let parsedMessage;
-        try {
-            parsedMessage = JSON.parse(message.data.toString(), dateReviver);
-        } catch (e) {
-            parsedMessage = message;
-        }
-        return parsedMessage;
+      let parsedMessage;
+      try {
+        parsedMessage = JSON.parse(message.data.toString(), dateReviver);
+      } catch (e) {
+        parsedMessage = message;
+      }
+      return parsedMessage;
     }
 
-    const {pubSub} = getMockedGooglePubSub({commonMessageHandler});
+    const { pubSub } = getMockedGooglePubSub({ commonMessageHandler });
     const validTime = new Date();
     const invalidTime = '2018-13-01T12:00:00Z';
-    pubSub.subscribe('Times', message => {
-      try {
-        expect(message).to.have.property('invalidTime', invalidTime);
-        expect(message).to.have.property('validTime');
-        expect(message.validTime.getTime()).to.equals(validTime.getTime());
-        done();
-      } catch (e) {
-        done(e);
-      }
-    }).then(subId => {
-      try {
-        pubSub.publish('Times', { validTime, invalidTime });
-        asyncMessageHandler().then(() => pubSub.unsubscribe(subId));
-      } catch (e) {
-        done(e);
-      }
-    });
+    pubSub
+      .subscribe('Times', message => {
+        try {
+          expect(message).to.have.property('invalidTime', invalidTime);
+          expect(message).to.have.property('validTime');
+          expect(message.validTime.getTime()).to.equals(validTime.getTime());
+          done();
+        } catch (e) {
+          done(e);
+        }
+      })
+      .then(subId => {
+        try {
+          pubSub.publish('Times', { validTime, invalidTime });
+          asyncMessageHandler().then(() => pubSub.unsubscribe(subId));
+        } catch (e) {
+          done(e);
+        }
+      });
   });
 
   it('throws if you try to unsubscribe with an unknown id', () => {
-    const {pubSub} = getMockedGooglePubSub();
-    return expect(() => pubSub.unsubscribe(123))
-      .to.throw('There is no subscription of id "123"');
+    const { pubSub } = getMockedGooglePubSub();
+    return expect(() => pubSub.unsubscribe(123)).to.throw('There is no subscription of id "123"');
   });
 
   it('can use a transform function to convert the topic name given into more explicit subscription name', done => {
-    const topic2SubName = (topicName, {subscriptionSufix}) => `${topicName}-${subscriptionSufix}`;
-    const {pubSub} = getMockedGooglePubSub({topic2SubName});
+    const topic2SubName = (topicName, { subscriptionSufix }) => `${topicName}-${subscriptionSufix}`;
+    const { pubSub } = getMockedGooglePubSub({ topic2SubName });
 
     const validateMessage = message => {
       try {
@@ -289,21 +285,19 @@ describe('GooglePubSub', () => {
       }
     };
 
-    pubSub.subscribe('comments', validateMessage, { subscriptionSufix: 'graphql-google-pubsub-subscription' })
+    pubSub
+      .subscribe('comments', validateMessage, { subscriptionSufix: 'graphql-google-pubsub-subscription' })
       .then(async subId => {
         pubSub.publish('comments', 'test');
         await asyncMessageHandler();
         pubSub.unsubscribe(subId);
       });
-
   });
-
 });
 
 describe('PubSubAsyncIterator', () => {
-
   it('should expose valid asyncIterator for a specific event', () => {
-    const {pubSub} = getMockedGooglePubSub();
+    const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
     expect(iterator).to.exist;
@@ -311,7 +305,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('should trigger event on asyncIterator when published', done => {
-    const {pubSub} = getMockedGooglePubSub();
+    const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
 
@@ -324,11 +318,11 @@ describe('PubSubAsyncIterator', () => {
     // Todo: check if the needed timeout here could be an issue
     // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
     // the subscriber needs some time to subscribe
-      asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }))
+    asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }));
   });
 
   it('should not trigger event on asyncIterator when publishing other event', () => {
-    const {pubSub} = getMockedGooglePubSub();
+    const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test2';
     const iterator = pubSub.asyncIterator('test');
     const triggerSpy = spy(() => undefined);
@@ -339,7 +333,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('register to multiple events', done => {
-    const {pubSub} = getMockedGooglePubSub();
+    const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test2';
     const iterator = pubSub.asyncIterator(['test', 'test2']);
     const triggerSpy = spy(() => undefined);
@@ -352,31 +346,35 @@ describe('PubSubAsyncIterator', () => {
     // Todo: check if the needed timeout here could be an issue
     // Todo: related? https://github.com/davidyaha/graphql-redis-subscriptions/issues/90
     // the subscriber needs some time to subscribe
-    asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }))
+    asyncSubscribe().then(() => pubSub.publish(eventName, { test: true }));
   });
 
   it('should not trigger event on asyncIterator already returned', done => {
-    const {pubSub} = getMockedGooglePubSub();
+    const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
 
-    iterator.next().then(result => {
-      expect(result).to.exist;
-      expect(result.value).to.exist;
-      expect(JSON.parse(result.value.data.toString()).test).to.equal('word');
-      expect(result.done).to.be.false;
-    }).then(() => iterator.next().then(result => {
-      expect(result).to.exist;
-      expect(result.value).not.to.exist;
-      expect(result.done).to.be.true;
-      done();
-    }));
+    iterator
+      .next()
+      .then(result => {
+        expect(result).to.exist;
+        expect(result.value).to.exist;
+        expect(JSON.parse(result.value.data.toString()).test).to.equal('word');
+        expect(result.done).to.be.false;
+      })
+      .then(() =>
+        iterator.next().then(result => {
+          expect(result).to.exist;
+          expect(result.value).not.to.exist;
+          expect(result.done).to.be.true;
+          done();
+        })
+      );
 
     asyncSubscribe()
       .then(() => pubSub.publish(eventName, { test: 'word' }))
       .then(asyncMessageHandler)
       .then(() => iterator.return())
-      .then(() => pubSub.publish(eventName, { test: true }))
+      .then(() => pubSub.publish(eventName, { test: true }));
   });
-
 });

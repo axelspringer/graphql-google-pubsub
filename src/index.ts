@@ -1,1 +1,1 @@
-export {default} from './google-pubsub'
+export { default } from './google-pubsub';

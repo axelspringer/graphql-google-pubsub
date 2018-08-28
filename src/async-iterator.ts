@@ -34,7 +34,6 @@ import { PubSubEngine } from 'graphql-subscriptions';
  * Additional options which get passed through for the client.
  */
 export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
-
   constructor(pubSubEngine: PubSubEngine, subNames: string | string[], options: any) {
     this.pubsub = pubSubEngine;
     this.pullQueue = [];
@@ -102,9 +101,9 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
   }
 
   private subscribeAll() {
-    return Promise.all(this.eventsArray.map(
-      eventName => this.pubsub.subscribe(eventName, this.pushValue.bind(this), this.options),
-    ));
+    return Promise.all(
+      this.eventsArray.map(eventName => this.pubsub.subscribe(eventName, this.pushValue.bind(this), this.options))
+    );
   }
 
   private unsubscribeAll(subscriptionIds: number[]) {
@@ -112,5 +111,4 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
       this.pubsub.unsubscribe(subscriptionId);
     }
   }
-
 }

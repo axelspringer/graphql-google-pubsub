@@ -51,6 +51,7 @@
     "chai-as-promised": "^7.1.1",
     "graphql": "^0.13.0",
     "mocha": "^5.2.0",
+    "prettier": "^1.14.2",
     "simple-mock": "^0.8.0",
     "typescript": "^2.6.2"
   }
