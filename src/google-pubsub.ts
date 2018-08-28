@@ -23,9 +23,6 @@ export default class GooglePubSub implements PubSubEngine {
     this.commonMessageHandler = commonMessageHandler
   }
 
-  // Todo: how to handle attributes
-  // Todo: wait for release of https://github.com/apollographql/graphql-subscriptions/issues/160#issuecomment-415796182
-  // @ts-ignore
   public publish(topicName: string, data: any, attributes?: object) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data)
@@ -110,9 +107,7 @@ export default class GooglePubSub implements PubSubEngine {
   }
 
   // Todo: how to handle options
-  // @ts-ignore
   public asyncIterator<T>(topics: string | string[], options?) {
-    // @ts-ignore
     return new PubSubAsyncIterator(this, topics, options)
   }
 

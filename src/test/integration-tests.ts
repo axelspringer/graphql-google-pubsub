@@ -1,5 +1,5 @@
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { mock } from 'simple-mock';
 import {
   parse,
@@ -10,7 +10,7 @@ import {
 import { isAsyncIterable } from 'iterall';
 import { subscribe } from 'graphql/subscription';
 
-import GooglePubSub from '../index'
+import GooglePubSub from '../index';
 import { withFilter } from 'graphql-subscriptions';
 
 chai.use(chaiAsPromised);
