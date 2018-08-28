@@ -24,7 +24,8 @@ import { PubSubEngine } from 'graphql-subscriptions';
  * A promise of a list of all subscription ids to the passed PubSubEngine.
  *
  * @property listening @type {boolean}
- * Whether or not the PubSubAsynIterator is in listening mode (responding to incoming PubSubEngine events and next() calls).
+ * Whether or not the PubSubAsynIterator is in listening mode
+ * (responding to incoming PubSubEngine events and next() calls).
  * Listening begins as true and turns to false once the return method is called.
  *
  * @property pubsub @type {PubSubEngine}

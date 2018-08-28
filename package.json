@@ -31,6 +31,8 @@
     "compile": "tsc",
     "pretest": "npm run compile",
     "test": "npm run testonly -- && npm run integration --",
+    "posttest": "npm run lint",
+    "lint": "tslint --project ./tsconfig.json ./src/**/*.ts",
     "watch": "tsc -w",
     "testonly": "mocha --reporter spec --full-trace ./dist/test/tests.js ",
     "preintegration": "npm run compile",
@@ -51,8 +53,8 @@
     "chai-as-promised": "^7.1.1",
     "graphql": "^0.13.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.14.2",
     "simple-mock": "^0.8.0",
+    "tslint": "^5.8.0",
     "typescript": "^2.6.2"
   }
 }

@@ -119,7 +119,8 @@ export default class GooglePubSub implements PubSubEngine {
   private topic2SubName: Topic2SubName;
   private pubSubClient: any; // Todo: type
 
-  private clientId2GoogleSubNameAndClientCallback: { [clientId: number]: [string, Function] }; // [subName: string, onMessage: Function]
+  // [subName: string, onMessage: Function]
+  private clientId2GoogleSubNameAndClientCallback: { [clientId: number]: [string, Function] };
   private googleSubName2GoogleSubAndClientIds: { [topic: string]: GoogleSubAndClientIds };
   private currentClientId: number;
 }
