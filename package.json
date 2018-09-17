@@ -27,8 +27,16 @@
     }
   ],
   "scripts": {
-    "dist": "babel src -d dist",
-    "prepublishOnly": "npm run dist"
+    "prepublishOnly": "npm run test",
+    "compile": "tsc",
+    "pretest": "npm run compile",
+    "test": "npm run testonly -- && npm run integration --",
+    "posttest": "npm run lint",
+    "lint": "tslint --project ./tsconfig.json ./src/**/*.ts",
+    "watch": "tsc -w",
+    "testonly": "mocha --reporter spec --full-trace ./dist/test/tests.js ",
+    "preintegration": "npm run compile",
+    "integration": "mocha --reporter spec --full-trace ./dist/test/integration-tests.js"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^0.19.0",
@@ -36,8 +44,17 @@
     "graphql-subscriptions": "^0.5.8"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
+    "@types/chai": "^4.1.4",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.9.2",
+    "@types/simple-mock": "^0.8.0",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^7.1.1",
+    "graphql": "^0.13.0",
+    "mocha": "^5.2.0",
+    "simple-mock": "^0.8.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2"
   }
 }
