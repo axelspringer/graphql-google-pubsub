@@ -33,7 +33,7 @@ type Result {
 Now, let's create a simple `GooglePubSub` instance:
 
 ```javascript
-import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
+import GooglePubSub from '@axelspringer/graphql-google-pubsub';
 const pubsub = new GooglePubSub();
 ```
 
@@ -92,7 +92,7 @@ export const resolvers = {
 ## Creating the Google PubSub Client
 
 ```javascript
-import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
+import GooglePubSub from '@axelspringer/graphql-google-pubsub';
 
 const pubSub = new GooglePubSub(options, topic2SubName, commonMessageHandler)
 ```
