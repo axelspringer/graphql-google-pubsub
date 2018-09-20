@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { spy } from 'simple-mock';
 import { isAsyncIterable } from 'iterall';
-import GooglePubSub from '../index';
+import { GooglePubSub } from '../index';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
