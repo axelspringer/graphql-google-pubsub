@@ -41,8 +41,8 @@ export class PubSubAsyncIterator<T> implements AsyncIterator<T> {
     this.pushQueue = [];
     this.listening = true;
     this.eventsArray = typeof subNames === 'string' ? [subNames] : subNames;
-    this.allSubscribed = this.subscribeAll();
     this.options = options;
+    this.allSubscribed = this.subscribeAll();
   }
 
   public async next() {
