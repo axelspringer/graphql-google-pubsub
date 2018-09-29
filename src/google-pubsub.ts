@@ -11,8 +11,8 @@ class NoSubscriptionOfIdError extends Error {
 export default class GooglePubSub implements PubSubEngine {
   constructor(
     config?,
-    topic2SubName = topicName => `${topicName}-subscription`,
-    commonMessageHandler = message => message,
+    topic2SubName: Topic2SubName = topicName => `${topicName}-subscription`,
+    commonMessageHandler: CommonMessageHandler = message => message,
     pubSubClient = new PubSub(config)
   ) {
     this.clientId2GoogleSubNameAndClientCallback = {};
