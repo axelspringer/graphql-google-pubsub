@@ -105,7 +105,11 @@ Otherwise you can provide this details in the options.
 ```javascript
 
 const options = {
-  projectName: 'project-abc'
+  projectId: 'project-abc'
+  credentials:{
+    client_email: 'client@example-email.iam.gserviceaccount.com'
+    private_key: '-BEGIN PRIVATE KEY-\nsample\n-END PRIVATE KEY-\n'
+  }
 };
 ```
 
