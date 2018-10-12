@@ -60,7 +60,9 @@ Now, the GraphQL engine knows that `somethingChanged` is a subscription, and eve
 pubsub.publish(SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: "123" }});
 ```
 
-## Dynamically create a topic based on subscription args passed on the query:
+The topic doesn't get created automatically, it has to be created beforehand.
+
+## Dynamically use a topic based on subscription args passed on the query:
 
 ```javascript
 export const resolvers = {
