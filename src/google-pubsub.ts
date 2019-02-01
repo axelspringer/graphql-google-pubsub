@@ -117,7 +117,7 @@ export default class GooglePubSub implements PubSubEngine {
 
   private commonMessageHandler: CommonMessageHandler;
   private topic2SubName: Topic2SubName;
-  private pubSubClient: any; // Todo: type
+  public pubSubClient: any; // Todo: type
 
   // [subName: string, onMessage: Function]
   private clientId2GoogleSubNameAndClientCallback: { [clientId: number]: [string, Function] };
