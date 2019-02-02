@@ -98,16 +98,15 @@ const pubSub = new GooglePubSub(options, topic2SubName, commonMessageHandler)
 ```
 
 ### Options
-This are the options which are passed to the internal Google PubSub client.
+This are the [options](https://cloud.google.com/nodejs/docs/reference/pubsub/0.23.x/global#ClientConfig) which are passed to the internal Google PubSub client.
 The client will extract credentials, project name etc. from environment variables if provided.
 Have a look at the [authentication guide](https://cloud.google.com/docs/authentication/getting-started) for more information.
 Otherwise you can provide this details in the options.
 ```javascript
-
 const options = {
-  projectId: 'project-abc'
+  projectId: 'project-abc',
   credentials:{
-    client_email: 'client@example-email.iam.gserviceaccount.com'
+    client_email: 'client@example-email.iam.gserviceaccount.com',
     private_key: '-BEGIN PRIVATE KEY-\nsample\n-END PRIVATE KEY-\n'
   }
 };
@@ -129,8 +128,8 @@ You can transform the message before it is passed to the individual filter/resol
 This way it is for example possible to inject one instance of a [DataLoader](https://github.com/facebook/dataloader) which can be used in all filter/resolver methods.
 
 ```javascript
-const getDataLoader = () => new DataLoader(...)
-const commonMessageHandler = ({attributes: {id}, data}) => ({id, dataLoader: getDataLoader()})
+const getDataLoader = () => new DataLoader(...);
+const commonMessageHandler = ({attributes: {id}, data}) => ({id, dataLoader: getDataLoader()});
 ```
 
 ```javascript
