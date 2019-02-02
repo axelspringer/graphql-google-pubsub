@@ -41,7 +41,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.20.1",
     "iterall": "^1.2.2",
-    "graphql-subscriptions": "^0.5.8"
+    "graphql-subscriptions": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
