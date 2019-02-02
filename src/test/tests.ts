@@ -15,10 +15,6 @@ function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler
   // tslint:disable-next-line:no-empty
   const ackSpy = spy(() => {});
 
-  const publisherMock = {
-    publish: spy((data, attributes) => listener && listener({ ack: ackSpy, data, attributes }))
-  };
-
   const removeListenerSpy = spy((event, cb) => {
     if (event === 'message') {
       listener = null;
@@ -38,7 +34,7 @@ function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler
   };
 
   const topicMock = {
-    publisher: spy(() => publisherMock),
+    publish: spy((data, attributes) => listener && listener({ ack: ackSpy, data, attributes })),
     createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
   };
 
@@ -81,18 +77,20 @@ describe('GooglePubSub', () => {
 
   it('can unsubscribe from specific topic', done => {
     const { pubSub, removeListenerSpy } = getMockedGooglePubSub();
-    pubSub.subscribe('Posts', () => null).then(subId => {
-      pubSub.unsubscribe(subId);
+    pubSub
+      .subscribe('Posts', () => null)
+      .then(subId => {
+        pubSub.unsubscribe(subId);
 
-      try {
-        expect(removeListenerSpy.callCount).to.equals(2); // error and message listener
-        expect(removeListenerSpy.calls[0].args[0]).to.equals('message');
-        expect(removeListenerSpy.calls[1].args[0]).to.equals('error');
-        done();
-      } catch (e) {
-        done(e);
-      }
-    });
+        try {
+          expect(removeListenerSpy.callCount).to.equals(2); // error and message listener
+          expect(removeListenerSpy.calls[0].args[0]).to.equals('message');
+          expect(removeListenerSpy.calls[1].args[0]).to.equals('error');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
   });
 
   it('cleans up correctly the memory when unsubscribing', done => {

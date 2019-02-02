@@ -1,4 +1,4 @@
-import PubSub from '@google-cloud/pubsub';
+import { PubSub } from '@google-cloud/pubsub';
 import { PubSubEngine } from 'graphql-subscriptions';
 import { PubSubAsyncIterator } from './async-iterator';
 
@@ -29,7 +29,6 @@ export default class GooglePubSub implements PubSubEngine {
     }
     return this.pubSubClient
       .topic(topicName)
-      .publisher()
       .publish(Buffer.from(data), attributes);
   }
 
