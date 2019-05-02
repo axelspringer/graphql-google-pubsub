@@ -356,7 +356,7 @@ describe('PubSubAsyncIterator', () => {
   it('should not trigger event on asyncIterator already returned', done => {
     const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
-    const iterator = pubSub.asyncIterator(eventName);
+    const iterator = pubSub.asyncIterator<{ data: Buffer }>(eventName);
 
     iterator
       .next()
