@@ -110,7 +110,7 @@ export default class GooglePubSub implements PubSubEngine {
     delete this.clientId2GoogleSubNameAndClientCallback[subId];
   }
 
-  public asyncIterator<T>(topics: string | string[], options?) {
+  public asyncIterator<T>(topics: string | string[], options?): AsyncIterator<T> {
     return new PubSubAsyncIterator(this, topics, options);
   }
 
