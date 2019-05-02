@@ -62,6 +62,25 @@ pubsub.publish(SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: "123" }});
 
 The topic doesn't get created automatically, it has to be created beforehand.
 
+If you publish non string data it gets stringified and you have to [parse the received message data](#receive-messages).
+
+## Receive Messages
+
+The [received message](https://cloud.google.com/nodejs/docs/reference/pubsub/0.28.x/Message) from Google PubSub gets directly passed as payload to the resolve/filter function.
+
+You might extract the data (Buffer) in there or use a [common message handler](#commonmessagehandler) to transform the received message.
+
+```javascript
+function commonMessageHandler ({attributes = {}, data = ''}) {
+  return {
+    ...attributes,
+    text: data.toString()
+  };
+}
+```
+
+The `can use custom message handler` test illustrates the flexibility of the common message handler.
+
 ## Dynamically use a topic based on subscription args passed on the query:
 
 ```javascript
