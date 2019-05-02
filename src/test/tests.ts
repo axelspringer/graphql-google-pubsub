@@ -1,8 +1,9 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { spy } from 'simple-mock';
+import { spy, mock } from 'simple-mock';
 import { isAsyncIterable } from 'iterall';
 import { GooglePubSub } from '../index';
+import { PubSub } from '@google-cloud/pubsub';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -38,10 +39,9 @@ function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler
     createSubscription: spy(subName => Promise.resolve([subscriptionMock]))
   };
 
-  const mockGooglePubSubClient = {
-    topic: spy(topic => topicMock),
-    subscription: spy(subName => subscriptionMock)
-  };
+  let mockGooglePubSubClient = new PubSub();
+  mock(mockGooglePubSubClient, 'topic', () => topicMock);
+  mock(mockGooglePubSubClient, 'subscription', () => subscriptionMock);
 
   const pubSub = new GooglePubSub(undefined, topic2SubName, commonMessageHandler, mockGooglePubSubClient);
 
