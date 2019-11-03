@@ -1,6 +1,6 @@
 {
   "name": "@axelspringer/graphql-google-pubsub",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "description": "A graphql-subscriptions PubSub Engine using Google PubSub",
   "main": "dist/index.js",
   "repository": {
@@ -39,7 +39,7 @@
     "integration": "mocha --reporter spec --full-trace ./dist/test/integration-tests.js"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^0.28.1",
+    "@google-cloud/pubsub": "^1.1.5",
     "iterall": "^1.2.2",
     "graphql-subscriptions": "^1.1.0"
   },
@@ -49,10 +49,10 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.9.2",
     "@types/simple-mock": "^0.8.0",
-    "chai": "^3.5.0",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "graphql": "^0.13.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.2.2",
     "simple-mock": "^0.8.0",
     "tslint": "^5.16.0",
     "typescript": "^3.4.5"
