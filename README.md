@@ -66,7 +66,7 @@ If you publish non string data it gets stringified and you have to [parse the re
 
 ## Receive Messages
 
-The [received message](https://cloud.google.com/nodejs/docs/reference/pubsub/0.28.x/Message) from Google PubSub gets directly passed as payload to the resolve/filter function.
+The [received message](https://googleapis.dev/nodejs/pubsub/1.1.5/Message.html) from Google PubSub gets directly passed as payload to the resolve/filter function.
 
 You might extract the data (Buffer) in there or use a [common message handler](#commonmessagehandler) to transform the received message.
 
@@ -119,7 +119,7 @@ const pubSub = new GooglePubSub(options, topic2SubName, commonMessageHandler)
 ```
 
 ### Options
-This are the [options](https://cloud.google.com/nodejs/docs/reference/pubsub/0.23.x/global#ClientConfig) which are passed to the internal Google PubSub client.
+These are the [options](https://googleapis.dev/nodejs/pubsub/1.1.5/global.html#ClientConfig) which are passed to the internal or passed Google PubSub client.
 The client will extract credentials, project name etc. from environment variables if provided.
 Have a look at the [authentication guide](https://cloud.google.com/docs/authentication/getting-started) for more information.
 Otherwise you can provide this details in the options.
@@ -131,6 +131,25 @@ const options = {
     private_key: '-BEGIN PRIVATE KEY-\nsample\n-END PRIVATE KEY-\n'
   }
 };
+```
+
+#### Subscription Options
+
+[Subscription options](https://googleapis.dev/nodejs/pubsub/1.1.5/global.html#CreateSubscriptionRequest) can be passed into `subscribe` or `asyncInterator`.
+
+Note: [google.protobuf.Duration](https://googleapis.dev/nodejs/pubsub/1.1.5/google.protobuf.html#.Duration) types must be passed in as an object with a seconds property (`{ seconds: 123 }`).
+
+```javascript
+const dayInSeconds = 60 * 60 * 24;
+
+const subscriptionOptions = {
+  messageRetentionDuration: { seconds: dayInSeconds },
+  expirationPolicy: {
+    ttl: { seconds: dayInSeconds * 2 }, // 2 Days
+  },
+};
+
+await pubsub.asyncIterator("abc123", subscriptionOptions);
 ```
 
 ### topic2SubName

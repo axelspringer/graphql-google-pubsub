@@ -1,6 +1,6 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { spy, mock } from 'simple-mock';
+import { spy, mock, restore, Spy } from 'simple-mock';
 import { isAsyncIterable } from 'iterall';
 import { GooglePubSub } from '../index';
 import { PubSub } from '@google-cloud/pubsub';
@@ -45,7 +45,7 @@ function getMockedGooglePubSub({ topic2SubName = undefined, commonMessageHandler
 
   const pubSub = new GooglePubSub(undefined, topic2SubName, commonMessageHandler, mockGooglePubSubClient);
 
-  return { pubSub, addListenerSpy, removeListenerSpy };
+  return { pubSub, addListenerSpy, removeListenerSpy, topicMock };
 }
 
 // wait for the promise of the message handler
@@ -56,6 +56,8 @@ const asyncSubscribe = asyncMessageHandler;
 // -------------- Mocking Google PubSub Client ------------------
 
 describe('GooglePubSub', () => {
+  afterEach(() => { restore(); });
+
   it('can subscribe to specific topic and called when a message is published on it', done => {
     const { pubSub } = getMockedGooglePubSub();
     pubSub
@@ -292,9 +294,25 @@ describe('GooglePubSub', () => {
         pubSub.unsubscribe(subId);
       });
   });
+
+  it('subscribe passes through subscription options to google pub sub subscribe', async () => {
+    const { pubSub, topicMock } = getMockedGooglePubSub();
+    const subOpts = {
+      messageRetentionDuration: { seconds: 1337 },
+    };
+
+    const subId = await pubSub.subscribe('options', () => { /* no-op */ }, subOpts);
+    pubSub.unsubscribe(subId);
+
+    const firstCall = topicMock.createSubscription.calls[0];
+    expect(firstCall.args[0]).to.equal('options-subscription');
+    expect(firstCall.args[1]).to.deep.equal(subOpts);
+  });
 });
 
 describe('PubSubAsyncIterator', () => {
+  afterEach(() => { restore(); });
+
   it('should expose valid asyncIterator for a specific event', () => {
     const { pubSub } = getMockedGooglePubSub();
     const eventName = 'test';
@@ -386,5 +404,19 @@ describe('PubSubAsyncIterator', () => {
       .then(asyncMessageHandler)
       .then(() => iterator.return())
       .then(() => pubSub.publish(eventName, { test: true }));
+  });
+
+  it('passes through subscription options to google pub sub subscribe', async () => {
+    const { pubSub, topicMock } = getMockedGooglePubSub();
+    const subOpts = {
+      messageRetentionDuration: { seconds: 42 },
+    };
+
+    const iterator = await pubSub.asyncIterator('iter-options', subOpts);
+    await iterator.return();
+
+    const firstCall = topicMock.createSubscription.calls[0];
+    expect(firstCall.args[0]).to.equal('iter-options-subscription');
+    expect(firstCall.args[1]).to.deep.equal(subOpts);
   });
 });

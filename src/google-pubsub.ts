@@ -32,13 +32,13 @@ export default class GooglePubSub implements PubSubEngine {
       .publish(Buffer.from(data), attributes);
   }
 
-  private async getSubscription(topicName, subName) {
+  private async getSubscription(topicName, subName, options?) {
     const sub = this.pubSubClient.subscription(subName);
     const [exists] = await sub.exists();
     if (exists) {
       return sub;
     } else {
-      const [newSub] = await this.pubSubClient.topic(topicName).createSubscription(subName);
+      const [newSub] = await this.pubSubClient.topic(topicName).createSubscription(subName, options);
       return newSub;
     }
   }
@@ -51,7 +51,7 @@ export default class GooglePubSub implements PubSubEngine {
     const { ids: oldIds = [], ...rest } = this.googleSubName2GoogleSubAndClientIds[subName] || {};
     this.googleSubName2GoogleSubAndClientIds[subName] = { ...rest, ids: [...oldIds, id] };
     if (oldIds.length > 0) return Promise.resolve(id);
-    const sub = await this.getSubscription(topicName, subName);
+    const sub = await this.getSubscription(topicName, subName, options);
     const googleSubAndClientIds = this.googleSubName2GoogleSubAndClientIds[subName] || {};
     // all clients have unsubscribed before the async subscription was created
     if (!googleSubAndClientIds.ids.length) return id;
