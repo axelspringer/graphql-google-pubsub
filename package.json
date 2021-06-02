@@ -27,7 +27,7 @@
     }
   ],
   "scripts": {
-    "prepare": "npm run test",
+    "prepare": "npm run compile",
     "compile": "tsc",
     "pretest": "npm run compile",
     "test": "npm run testonly -- && npm run integration --",
