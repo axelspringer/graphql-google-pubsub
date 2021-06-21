@@ -39,9 +39,9 @@
     "integration": "mocha --reporter spec --full-trace ./dist/test/integration-tests.js"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^1.1.5",
-    "iterall": "^1.2.2",
-    "graphql-subscriptions": "^1.1.0"
+    "@google-cloud/pubsub": "^2.14.0",
+    "graphql-subscriptions": "^1.1.0",
+    "iterall": "^1.2.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
